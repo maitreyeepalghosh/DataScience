@@ -1,0 +1,49 @@
+#Reference: http://www.artfact-online.fr/blog/blog-post/6
+import collections
+import pandas as pd
+from nltk import word_tokenize
+from nltk.corpus import stopwords
+from nltk.stem import PorterStemmer
+from sklearn.cluster import KMeans
+from sklearn.feature_extraction.text import TfidfVectorizer
+from pprint import pprint
+import sys
+reload(sys)
+sys.setdefaultencoding('utf8')
+
+def word_tokenizer(text):
+       #tokenizes and stems the text
+        tokens = word_tokenize(text)
+        stemmer = PorterStemmer()
+        tokens = [stemmer.stem(t) for t in tokens if t not in stopwords.words('english')]
+        return tokens
+
+
+def cluster_sentences(sentences, nb_of_clusters=5):
+        tfidf_vectorizer = TfidfVectorizer(tokenizer=word_tokenizer,
+                                        stop_words=stopwords.words('english'),
+                                        max_df=0.9,
+                                        min_df=0.1,
+                                        lowercase=True)
+        #builds a tf-idf matrix for the sentences
+        tfidf_matrix = tfidf_vectorizer.fit_transform(sentences)
+        kmeans = KMeans(n_clusters=nb_of_clusters)
+        kmeans.fit(tfidf_matrix)
+        clusters = collections.defaultdict(list)
+        print(kmeans.labels_)
+        for i, label in enumerate(kmeans.labels_):
+               clusters[label].append(i)
+        return dict(clusters)
+if __name__ == "__main__":
+        sentences = ["Nature is beautiful","I like green apples","We should protect the trees","Fruit trees provide fruits",
+                   "Green apples are tasty"]
+    
+        nclusters= 15
+        clusters = cluster_sentences(sentences, nclusters)
+        dict1={}
+        for cluster in range(nclusters):               
+                for i,sentence in enumerate(clusters[cluster]):
+                         dict1[sentences[sentence]]=cluster
+                         
+df=pd.DataFrame.from_dict(dict1, orient="index")
+df.to_csv("data.csv")
