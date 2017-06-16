@@ -74,6 +74,17 @@ for sentence in sentences:
         focus_sentence, sentence, symmetric_sentence_similarity(focus_sentence, sentence))
     print "SymmetricSimilarity(\"%s\", \"%s\") = %s" % (
         sentence, focus_sentence, symmetric_sentence_similarity(sentence, focus_sentence))
-    print
+    
+
+
+
+score_matrix={}
+for i, elem in enumerate(sentences):
+    print i, elem
+    focus_sentence=elem
+    for j, elemcopy in enumerate(sentences.copy()):
+        sim_score=symmetric_sentence_similarity(focus_sentence,elemcopy)
+        score_matrix[i,j]=sim_score
+        print (score_matrix[i,j])
     
  
